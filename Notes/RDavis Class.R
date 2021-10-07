@@ -98,3 +98,65 @@ class(surveys_T)
 surveys[,1] #gives us a vector
 surveys_T[,1] #gives us a tibble - still first 10 observations
 
+
+#211007
+#Spreadsheets
+#Wide and long data: do you have a lot of rows or a lot of columns?
+#readin in spreadsheets
+surveys <- read.csv("/Users/alyciadrwencke/Desktop/R_DAVIS_2021/r-davis-in-class-project-alyciadrwencke/data/portal_data_joined.csv")
+head(surveys)
+str(surveys)
+#class of surveys = data.frame, rows =34786 ,col = 13
+nrow(surveys) #confirming number of columnes and rows
+ncol(surveys)
+#how are character data represented in the data frame?
+#how many species have been recorded during the survey
+surveys$species
+unique(surveys$species)
+#nest functions
+length(unique(surveys$species)) #return 40
+table(surveys$species) #controversial
+
+#below - reverse unique so something that is not duplicated, then sum it (can be extremely confusing)
+sum(!duplicated(surveys$species))
+
+#looking at rodent/small mammal trapping data from 1970's, multiple data types (factors, integers, characters)
+head(surveys, 1) # look at the top row only, can alter the number of rows you want to see.
+summary(surveys) #gives us a break down of the data set with some general stuff (min, max, etc)
+#subsetting from a data frame
+surveys[1,2] #need to specify two dimensions, row, column
+
+#levels is a way to identify unique character factors, but this does not work for just characters
+#starting with characters is good
+levels(surveys$species)
+
+#convert something to a factor
+?factor()
+species_factor <- factor(surveys$species)
+#it is kind of like a number
+typeof(species_factor)
+# but also, it is a character
+class(species_factor)
+#levels usually default to alphabetical order
+levels(species_factor)
+#may need to reassign orders - there are some better ways to do this 
+
+#subsetting challenge
+#Create a new data frame called surveys_200 containing row 200 of the surveys dataset.
+surveys_200 <- surveys[1:200, 1:13] #pull rows 1-200 and col 1-13
+#could also leave it blank as surveys[200,]
+head(surveys_200)
+#Create a new data frame called surveys_last, which extracts only the last row in of surveys.
+surveys_last <- surveys[length(tail), 1:13] #use length in case the number of rows change
+surveys_last
+tail(surveys) #double checking the data
+
+#Use nrow() to identify the row that is in the middle of surveys. Subset this row and store it in a new data frame called surveys_middle.
+nrow(surveys) #return 34786
+34768/2
+surveys_middle <- surveys[17384, 1:13]
+
+#Reproduce the output of the head() function by using the - notation (e.g. removal) and the nrow() function, keeping just the first through 6th rows of the surveys dataset
+surveyshead <- surveys[-(7:nrow(surveys)),] #you are saying you do not want rows 7 through whatever the end of the data frame is
+surveyshead
+#can do more easily
