@@ -160,3 +160,57 @@ surveys_middle <- surveys[17384, 1:13]
 surveyshead <- surveys[-(7:nrow(surveys)),] #you are saying you do not want rows 7 through whatever the end of the data frame is
 surveyshead
 #can do more easily
+
+#Week4 lecture videos
+library(tidyverse)
+#dplr is a more intuitive way of working with R but you maybe don't always need it
+surveys <- read_csv("/Users/alyciadrwencke/Desktop/R_DAVIS_2021/r-davis-in-class-project-alyciadrwencke/data/portal_data_joined.csv")
+dim(surveys) #shows us the number of columns and rows
+
+#select can help subset your data but you need to tell it what to do
+str(surveys)
+select(.data = surveys, sex, weight, genus) #pulls those columns, knows that sex, weight, etc are column names
+head(select(.data = surveys, sex, weight, genus)) #see the top 6 rows with those selected columns
+
+#filter function - selects rows; best to use to provide rules to sort against
+filter(surveys, genus == "Neotoma") #genus understands is a column, but need neotoma in quotes because it is a character value
+head(filter(surveys, genus == "Neotoma")) #returning top 6 rows
+#filter things out - i.e. anything that is not Neotoma <- != means do the opposite
+head(filter(surveys, genus!= "Neotoma"))
+
+surveys2 <- filter(surveys, genus != "Neotoma")
+surveys3 <- select(surveys2, genus, sex, species) #selecting columns from the data frame
+str(surveys3)
+
+#can nest functions to make this less taxing
+surveys_filter <- select(filter(surveys, genus != "Neotoma"), genus, sex, species) #r starts in the middle and works its way out
+identical (surveys3, surveys_filter) #checks if two items are identical, so cool!
+
+%>% #special character - piping that strings filter and select together
+
+install.packages("dlpr")
+#mutate - about creation
+
+surveys <- surveys %>% mutate(weight_kg = weight/1000) #overriding the older surveys to add the mutated version
+#can use this function with and without "piping" so you understand what is happening
+
+installed.packages() #shows you all of the packages you already have installed on R. 
+
+surveys <- read.csv("/Users/alyciadrwencke/Desktop/R_DAVIS_2021/r-davis-in-class-project-alyciadrwencke/data/portal_data_joined.csv")
+str(surveys)
+#groups by sex then weight
+surveys %>% group_by(sex) #variables in group by tells what we want to group with
+surveys %>% group_by(sex) %>%summarize(mean(weight)) # returns NA values - doesn't know how to deal with NA
+
+surveys %>% group_by(sex) %>%summarize(mean(weight, na.rm = T)) #removing na from data sets so that you get an actual value back
+#dplr allows you to rename the new value 
+surveys %>% group_by(sex) %>%summarize(avg_weight = mean(weight, na.rm = T))
+#renames the mean weight column that was created as avg_weight
+#tibble is a way that the tidy verse referes to a data frame - not a huge concern
+#adding another column with the median weight
+surveys %>% group_by(sex) %>%summarize(avg_weight = mean(weight, na.rm = T), med_weight = median(weight, na.rm =T))
+
+
+#tally function
+tally()
+
