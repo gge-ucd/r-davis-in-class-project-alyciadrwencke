@@ -214,3 +214,49 @@ surveys %>% group_by(sex) %>%summarize(avg_weight = mean(weight, na.rm = T), med
 #tally function
 tally()
 
+#211014 - reviewing the tidyverse - data manipulation pt1
+library(tidyverse)
+surveys <- read.csv("/Users/alyciadrwencke/Desktop/R_DAVIS_2021/r-davis-in-class-project-alyciadrwencke/data/portal_data_joined.csv")
+#keep observations only before 1995
+surveys_base <- filter(surveys,surveys$year < 1995) #in tidy verse could also leave it as only year
+#retain columns year, sex, and weight
+surveys_base <- select(surveys_base, year, sex, weight)
+str(surveys_base)
+
+#using piping to create a surveys base option without saving an intermediate step
+surveys_base <- filter(surveys, year<1995) %>% select(year, sex, weight)
+#another option
+surveys_base <- surveys %>% filter(year<1995) %>% select(year, sex, weight)
+#could also do
+surveys_base <- filter(select(surveys, year, sex, weight), year<1995) #may want to do it the oposite way sometimes
+
+#mutate - writing a new column or changing an existing column
+#recognizes names without quotes
+#Create a new data frame from the surveys data that meets the following criteria: 
+#contains only the species_id column and a new column called hindfoot_half containing values that are half the hindfoot_length values. 
+#In this hindfoot_half column, there are no NAs and all values are less than 30. 
+#Name this data frame surveys_hindfoot_half.
+surveys_hindfoot_half <- surveys %>% 
+  filter(., !is.na(hindfoot_length)) %>% 
+  mutate(., hindfoot_half = hindfoot_length/2) %>% 
+  select(., species_id,hindfoot_half) %>% 
+  filter(., hindfoot_half < 30)
+surveys_hindfoot_half
+str(surveys_hindfoot_half)
+#took the surveys data frame and filtered out the NA because we said we want anything that is not an na
+#then said we want a new column where we call it hindfoot half and that should be hindfoot length divided by 2
+#pope into the select where we say we want these specific columns
+#then we pipe into filter where we want to filter out the rows that are not less than 30
+
+
+#groupby and summerize
+#Use group_by() and summarize() to find the mean, min, and max hindfoot length for each species (using species_id).
+#What was the heaviest animal measured in each year? Return the columns year, genus, species_id, and weight.
+#You saw above how to count the number of individuals of each sex using a combination of group_by() and tally(). 
+#How could you get the same result using group_by() and summarize()? Hint: see ?n.
+
+surveys %>% filter(., !is.na(hindfoot_length)) %>% group_by(species_id) %>% 
+  summarize(avg_length = mean(hindfoot_length), min(hindfoot_length), max(hindfoot_length))
+
+
+
