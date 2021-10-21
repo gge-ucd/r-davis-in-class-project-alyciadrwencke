@@ -1,7 +1,7 @@
 # week 4 homework 211020
-#Create a tibble named surveys from the portal_data_joined.csv file.
+#Create a tibble named surveys from the portal_data_joined.csv file. #use read_csv to make a tibble
 library(tidyverse)
-surveys <- read.csv("/Users/alyciadrwencke/Desktop/R_DAVIS_2021/r-davis-in-class-project-alyciadrwencke/data/portal_data_joined.csv")
+surveys <- read_csv("/Users/alyciadrwencke/Desktop/R_DAVIS_2021/r-davis-in-class-project-alyciadrwencke/data/portal_data_joined.csv")
 str(surveys)
 
 #Subset surveys to keep rows with weight between 30 and 60, and print out the first 6 rows.
@@ -17,6 +17,7 @@ biggest_critters <- surveys %>%
   summarise(max_weight = max(weight))
 head(biggest_critters)
 
+#group by doesn't really change anything, it is waiting for another command such as summarise
 #sorting the data by max weight in decreasing order
 biggest_critters %>% arrange(desc(max_weight))
 
@@ -47,6 +48,13 @@ surveys %>%
 #10      21   106
 # … with 14 more rows
 
+#tally ends a pipe - may want to use n instead
+surveys %>%
+  filter(is.na(hindfoot_length)) %>%
+  group_by(species) %>%
+  summarize(count = n(), mean = mean(weight, na.rm = T))
+
+
 head(surveys)
 surveys %>% 
   filter(is.na(weight)) %>% 
@@ -72,6 +80,9 @@ surveys %>%
 
 #fairly evenly split between M/F but there are a lot of NA's with sex as blank
 
+sum(is.not(surveys$weight)) #totals na's in that column
+
+
 #Take surveys, remove the rows where weight is NA and add a column that contains the average weight of each species+sex combination to the full surveys dataframe.
 #Then get rid of all the columns except for species, sex, weight, and your new average weight column. 
 #Save this tibble as surveys_avg_weight.
@@ -96,3 +107,5 @@ surveys_average_weight <- surveys_average_weight %>%
 
 surveys_average_weight
 
+#read.csv is why there are blanks in the sex function
+#should use read_csv so that it reads blanks in as an NA
