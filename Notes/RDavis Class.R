@@ -314,5 +314,81 @@ surveys_long <- wide_survey %>%
 #don't forget to specify the data frame if you are not piping
 head(surveys_long)
 
+#211021 - data manipulation pt 2
+
+#filter subset by row values
+#select subset by columns
+#command, shift, and m creates piping symbol
+#tibble is a data frame that has certain hardwiring that is difficult to override
+#can use environment or View() to create a scrollable, view-able
+colnames()
+rownames()
+#returns a list of them
+
+#conditional statements
+library(tidyverse)
+surveys <- read.csv("/Users/alyciadrwencke/Desktop/R_DAVIS_2021/r-davis-in-class-project-alyciadrwencke/data/portal_data_joined.csv")
+surveys %>% 
+  filter(!is.na(weight)) %>% #gettinf rid of the NA's
+  mutate(weight_cat = case_when(weight > mean(weight) ~ "big", 
+                                weight < mean(weight) ~ "small")) %>% 
+#assigning what you want to happen with the case win if something is true or fales
+select(weight, weight_cat) %>% #select to make our view better
+  tail() #looking at the bottom 6 rows
+
+#challenge
+#Using the iris data frame (this is built in to R), create a new variable that categorizes petal length into three groups:
+#small (less than or equal to the 1st quartile)
+#medium (between the 1st and 3rd quartiles)
+#large (greater than or equal to the 3rd quartile)
+#Hint: Explore the iris data using summary(iris$Petal.Length), to see the petal length distribution. 
+#Then use your function of choice: ifelse() or case_when() to make a new variable named petal.length.cat based on the conditions listed above. 
+#Note that in the iris data frame there are no NAs, so we don’t have to deal with them here.
+
+data(iris)
+head(iris)
+str(iris)
+summary(iris$Petal.Length)
+
+iris_summary <- iris %>%  mutate(length_group = case_when(Petal.Length <= 1.6 ~ "small", 
+                                                          Petal.Length > 1.6 & Petal.Length < 5.1 ~ "medium",
+                                                          Petal.Length >= 5.1 ~ "large"))
+iris_summary
+
+#could also do - if else - assigns if something is one thing, assign small, if it's not, check the second one and do those 
+iris %>%
+  mutate(length_cat = ifelse(Petal.Length <= 1.6, "small",
+                             ifelse(Petal.Length >= 5.1, "large",
+                                    "medium")))
+
+#joining
+surveys = read_csv("/Users/alyciadrwencke/Desktop/R_DAVIS_2021/r-davis-in-class-project-alyciadrwencke/data/portal_data_joined.csv")
+tail_length = read_csv("/Users/alyciadrwencke/Desktop/R_DAVIS_2021/r-davis-in-class-project-alyciadrwencke/data/tail_length.csv")
+
+str(tail_length)
+str(surveys)
+
+intersect(colnames(surveys), colnames(tail_length))
+#record_id is returned
+
+combo_dateframe = left_join(surveys,tail_length)
+str(combo_dateframe)
 
 
+#pivot
+temp_df = surveys %>% group_by(year, plot_id) %>% tally()
+temp_df %>% ungroup #ungroups your data which can be helpful at times
+#challenge
+#Use pivot_wider on the surveys data frame with year as columns, plot_id as rows, and the number of genera per plot as the values. 
+#You will need to summarize before reshaping, and use the function n_distinct() to get the number of unique genera within a particular chunk of data. 
+#It’s a powerful function! See ?n_distinct for more.
+surveys_wider <- pivot_wider(temp_df, names_from = 'year', values_from = 'n')
+
+surveys_wider
+# plot id is the first col, year along top row, then the values in the table are the count
+
+#could do
+pivot_wider(temp_df,id_cols = 'plot_id',names_from = 'year',values_from = 'n')
+
+?n_distinct
+surveys %>% group_by(plot_id,year) %>% summarize(distinct_genus = n_distinct(genus))
