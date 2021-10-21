@@ -258,5 +258,61 @@ str(surveys_hindfoot_half)
 surveys %>% filter(., !is.na(hindfoot_length)) %>% group_by(species_id) %>% 
   summarize(avg_length = mean(hindfoot_length), min(hindfoot_length), max(hindfoot_length))
 
+#211020 - Data manipulation pt 2
+library(tidyverse)
+surveys <- read.csv("/Users/alyciadrwencke/Desktop/R_DAVIS_2021/r-davis-in-class-project-alyciadrwencke/data/portal_data_joined.csv")
+str(surveys)
+#conditional assignment
+summary(surveys$hindfoot_length)
+
+ifelse() #condenses a longer if/else call 
+#test, yes, no is the format - what to do, if it's a yes, if it's no.
+ifelse(surveys$hindfoot_length<mean(surveys$hindfoot_length, na.rm = T), 'small', 'big')
+#returns a vector of true, falses, and NA's. NA's show up where there are NA's in the data frame
+#can nest in mutate
+surveys <- mutate(surveys, hindfoot_size = ifelse(surveys$hindfoot_length<mean(surveys$hindfoot_length, na.rm = T), 'small', 'big'))
+
+surveys$hindfoot_size
+#returns the same vector but is now part of the data frame
+#casewin is a different method but doesn't handle the NA's as well
+
+
+#join
+tail <- read.csv("/Users/alyciadrwencke/Desktop/R_DAVIS_2021/r-davis-in-class-project-alyciadrwencke/data/tail_length.csv")
+str(tail)
+summary(tail$record_id)
+summary(surveys$record_id)
+
+#4 ways to join in the tidyverse
+#innerjoin - returns rows or columns where there is a match in A and B
+#left join and right join keep everything in one side and only what has a match in the other side
+#example - everything in b is kept, anything with a match in A stays, but anything without a match leaves
+#full_join returns NA's in spots where there aren't matches - things can get wonky if there aren't different ID's
+surveys_joined <- left_join(surveys,tail, by = "record_id")
+str(surveys_joined)
+
+#sometimes if you ask it to join without specifying what to join by, it can look at see if there are any that are the same
+#use extreme caution with this though!the columns may not be the same. etc.
+
+pivot_longer()
+pivot_wider() #enter data frame, columns to spread out and what to keep values
+
+surveys_mz <- surveys %>% 
+  filter(!is.na(weight)) %>% 
+  group_by(genus, plot_id) %>% 
+  summarize(mean_weight = mean(weight)) 
+wide_survey <- pivot_wider(surveys_mz, names_from = 'plot_id', values_from = 'mean_weight')
+dim(wide_survey)
+str(wide_survey)
+
+#switching to longer, you need to collapse some columns - needs to be more entries
+surveys_long <- wide_survey %>% 
+  pivot_longer(col = -genus, names_to = "plot_id", values_to = "mean_weight")
+
+#minus sign pivot all columns except for genus
+#col defines which ones to pivot (or in this case not by)
+#don't forget to specify the data frame if you are not piping
+head(surveys_long)
+
 
 
