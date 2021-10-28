@@ -392,3 +392,5 @@ pivot_wider(temp_df,id_cols = 'plot_id',names_from = 'year',values_from = 'n')
 
 ?n_distinct
 surveys %>% group_by(plot_id,year) %>% summarize(distinct_genus = n_distinct(genus))
+# or could do 
+surveys %>% group_by(plot_id,year) %>% summarize(length(unique(genus)))
