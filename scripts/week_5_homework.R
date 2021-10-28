@@ -17,6 +17,19 @@ surveys_wide <- surveys %>%
   pivot_wider(names_from = plot_type, values_from = mean_hindfoot) %>% 
   arrange(Control)
 
+# arrange
+surveys_wide %>%
+  arrange(Control)
+
+surveys_wide %>%
+  arrange(desc(Control))
+
+# What if we wanted to reverse this back into the longer version of what we made before
+?pivot_longer
+surveys_reverse <- surveys_wide %>%
+  pivot_longer(cols = c(Control:`Spectab exclosure`),
+               names_to = "plot_type",
+               values_to = "mean_hindfoot")
 ### 2
 #Using the original surveys dataframe, use the two different functions we laid out for conditional statements, 
 #ifelse() and case_when(), to calculate a new weight category variable called weight_cat. For this variable, define the rodent weight into 
