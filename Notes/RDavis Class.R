@@ -394,3 +394,117 @@ pivot_wider(temp_df,id_cols = 'plot_id',names_from = 'year',values_from = 'n')
 surveys %>% group_by(plot_id,year) %>% summarize(distinct_genus = n_distinct(genus))
 # or could do 
 surveys %>% group_by(plot_id,year) %>% summarize(length(unique(genus)))
+
+
+#Week 6 videos 211026 - Data visualization pt1
+library(tidyverse)
+
+surveys <- read_csv("/Users/alyciadrwencke/Desktop/R_DAVIS_2021/r-davis-in-class-project-alyciadrwencke/data/portal_data_joined.csv") %>% 
+  filter(complete.cases(.))
+#reading in our data and removing all of the NA's
+
+#ggplot(data = <DATA>, mapping = aes(<MAPPINGS>)) +  <GEOM_FUNCTION>() 
+#can add on geometric functions 
+# `geom_point()` for scatter plots, dot plots, etc.
+# `geom_boxplot()` for, well, boxplots!
+# `geom_line()` for trend lines, time series, etc.  
+
+#just specifying data gives you blank canvas
+ggplot(data = surveys)
+
+#two continuous variables
+ggplot(data = surveys, mapping = aes(x = weight, y = hindfoot_length))
+#aes = aesthetic
+#now see our canvas and see our x and y axis but no plotted points currently - GEOM does that
+
+ggplot(data = surveys, mapping = aes(x = weight, y = hindfoot_length)) + 
+  geom_point()
+#plots the data as point data
+
+#you can save these as an object
+base_plot <- ggplot(data = surveys, mapping = aes(x = weight, y = hindfoot_length))
+base_plot #gives you your blank canvas
+
+#can then add to the blank canvas
+base_plot + geom_point()
+
+#additional aesthetics that can give plots more character
+#plot elements - transparency, color, fill
+# color = color, transparency = alpha, infill = fill
+
+base_plot + geom_point(alpha = 0.2)
+base_plot + geom_point(color = "blue")
+#there are some packages available for color in ggplot
+base_plot + geom_point(color = "aquamarine") # this color worked
+#R will not recognize some colors though
+base_plot + geom_point(alpha = 0.5, color = "red")
+
+#color by categorical variable - species id
+ggplot(data = surveys, mapping = aes(x = weight, y = hindfoot_length)) +
+  geom_point(alpha = 0.1, aes(color = species_id))
+#you can specify aesthetics in multiple places
+#have to specify mapping with the species ID
+
+#box plots - geom_boxplot
+ggplot(data = surveys, mapping = aes(x = species_id, y = weight)) + geom_boxplot()
+#this one worked
+
+boxplot2 <- ggplot(data = surveys, mapping = aes(x = species_id, y = weight))
+
+#boxes are purple
+boxplot2 + 
+  geom_boxplot(color = "purple") + geom_point()
+
+#geom_jitter - moves the dots over 
+boxplot2 + 
+  geom_boxplot(color = "purple") +
+  geom_jitter(alpha = 0.1)
+
+#color by variable on the points - where to color is specified makes it only the points not the box plots
+boxplot2 + 
+  geom_boxplot(color = "purple") +
+  geom_jitter(alpha = 0.1, mapping = aes(color = species_id))
+
+#plotting time series
+yearly_counts <- surveys %>%
+  count(year, species_id) 
+str(yearly_counts)
+
+ggplot(data = yearly_counts, mapping = aes(x = year, y = n)) +
+  geom_line()
+#this looks really bad - making a purposeful mistake
+#not telling ggplot how to group things (doesn't recognize species ID here)
+
+ggplot(data = yearly_counts, mapping = aes(x = year, y = n, group = species_id)) +
+  geom_line()
+#using group to plot a line for each species id
+
+#adding color to each line with the species id
+ggplot(data = yearly_counts, mapping = aes(x = year, y = n, color = species_id)) +
+  geom_line()
+
+#faceting - wrap or grid - ploting the lines so they don't overlap
+ggplot(data = yearly_counts, mapping = aes(x = year, y = n)) +
+  geom_line() +
+  facet_wrap(~ species_id)
+# could add inside the facet brackets (nrow = x) to specify number of rows you want them on
+#you could also mess with scales - fixed, free, one fixed (x or y) and one roam free
+
+ggplot(data = yearly_counts, mapping = aes(x = year, y = n)) +
+  geom_line() +
+  facet_wrap(~ species_id, scales = 'free_y')
+
+ggplot(data = yearly_counts, mapping = aes(x = year, y = n)) +
+  geom_line() +
+  facet_wrap(~ species_id) +
+  theme_bw() +
+  theme(panel.grid = element_blank())
+
+#themes - gray, classic, black, dark
+
+#gaining access to all sorts of themes people have created
+install.packages("ggthemes")
+library(ggthemes)
+ggplot(data = yearly_counts, mapping = aes(x = year, y = n)) +
+  geom_line() +
+  theme_bw()
