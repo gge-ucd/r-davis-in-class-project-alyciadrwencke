@@ -508,3 +508,130 @@ library(ggthemes)
 ggplot(data = yearly_counts, mapping = aes(x = year, y = n)) +
   geom_line() +
   theme_bw()
+
+
+#211028 - week 6 class 
+library(tidyverse)
+
+#Challenge -
+#Use what you just learned to create a scatter plot of weight and species_id with weight on the Y-axis, and species_id on the X-axis. 
+#Have the colors be coded by plot_type. Is this a good way to show this type of data? What might be a better graph?
+
+surveys <- read_csv("/Users/alyciadrwencke/Desktop/R_DAVIS_2021/r-davis-in-class-project-alyciadrwencke/data/portal_data_joined.csv") %>% 
+  filter(complete.cases(.))
+#reading in our data and removing all of the NA's
+ggplot(data = surveys, mapping = aes(x = species_id, y = weight)) +
+  geom_point(alpha = 0.5, aes(color = plot_type))
+
+#How can this be better?
+#switched the axis and color
+ggplot(data = surveys,
+     mapping = aes(y = weight, x = plot_type)) +
+  geom_point(alpha = 0.5, aes(color = species_id))
+
+#Break them into different plots
+ggplot(surveys, aes(x = species_id, y = weight)) +
+  geom_point() +
+  facet_wrap(~plot_type)
+
+# don't like the theme
+ggplot(surveys, aes(x = species_id, y = weight)) +
+  geom_point() +
+  theme_classic()
+
+#box plot
+ggplot(data = surveys, mapping = aes(y = weight, x = species_id)) +
+  geom_boxplot() + geom_jitter(mapping = aes(color = plot_type))
+
+ggplot(data = surveys, mapping = aes(x = species_id, y = weight)) +
+  geom_boxplot(alpha = 0) +
+  geom_jitter(alpha = 0.3, color = "tomato") #notice our color needs to be in quotations 
+
+#challenge 2
+#1 - Boxplots are useful summaries, but hide the shape of the distribution. 
+#For example, if the distribution is bimodal, we would not see it in a boxplot. 
+#An alternative to the boxplot is the violin plot, where the shape (of the density of points) is drawn.
+#Replace the box plot with a violin plot; see geom_violin().
+
+ggplot(data = surveys, mapping = aes(y = weight, x = species_id)) +
+  geom_boxplot(color = "purple") 
+
+ggplot(data = surveys, mapping = aes(y = weight, x = species_id)) + 
+  geom_violin(aes(color = species_id)) 
+#can see wider spots where there is presumably a higher concentration of values
+#why did it not work when we try to do color by plot type?
+
+#adding violin
+base <- ggplot(data = surveys, mapping = aes(x = species_id, y = weight)) +
+  geom_jitter(alpha = 0.3, color = "tomato") +
+  geom_violin(alpha = 0)
+
+
+  
+#2 - In many types of data, it is important to consider the scale of the observations. 
+#For example, it may be worth changing the scale of the axis to better distribute the observations in the space of the plot. 
+#Changing the scale of the axes is done similarly to adding/modifying other components (i.e., by incrementally adding commands). 
+#Try making these modifications:
+#Represent weight on the log10 scale; see scale_y_log10().
+
+scaled_plot <- ggplot(data = surveys, mapping = aes(y = weight, x = species_id)) + 
+  geom_violin(aes(color = species_id)) + scale_y_log10("weight")
+?scale_y_log10()
+
+scaled_plot
+
+#adding the scale to the axis
+base +
+  geom_jitter(alpha = .1) +
+  geom_violin() +
+  scale_y_log10()
+  
+#3 - Make a new plot to explore the distrubtion of hindfoot_length just for species NL and PF. 
+#Overlay a jitter plot of the hindfoot lengths of each species by a boxplot. 
+#Then, color the datapoints according to the plot from which the sample was taken.
+#Hint: Check the class for plot_id. Consider changing the class of plot_id from integer to factor. Why does this change how R makes the graph?
+
+surveys %>%
+  filter(species_id == "NL" | species_id == "PF")
+#inclusive is & vs "or"
+#needed to do the == rather than & so that you get values otherwise you are asking for it to return values that have both which the data does not 
+
+
+surveys %>%
+  filter(species_id == "NL" | species_id == "PF") %>%
+  ggplot(mapping = aes(x = species_id, y = hindfoot_length)) +
+  geom_boxplot(alpha = 0) +
+  geom_jitter(alpha = 0.3, mapping = aes(color = plot_id))
+
+# plot is numeric but want it to be categorical
+hindfoot_survey <- surveys %>%
+  filter(species_id == "NL" | species_id == "PF")
+
+hindfoot_survey$plot_factor <- as.factor(hindfoot_survey$plot_id)
+
+ggplot(data = hindfoot_survey,
+       mapping = aes(x = species_id, y = hindfoot_length)) +
+  geom_boxplot(alpha = 0.1) +
+  geom_jitter(alpha = 0.3, mapping = aes(color = plot_factor))
+
+surveys %>%
+  filter(species_id == "NL" | species_id == "PF") %>%
+  mutate(plot_factor = as.factor(plot_id)) %>% 
+ggplot(mapping = aes(x = species_id, y = hindfoot_length)) +
+  geom_boxplot(alpha = 0.1) +
+  geom_jitter(alpha = 0.3, mapping = aes(color = plot_factor))
+
+
+
+#how to rearrange and resize things, etc. 
+# labels = labs, put them in quotes
+surveys %>%
+  filter(species_id == "NL" | species_id == "PF") %>%
+  mutate(plot_factor = as.factor(plot_id)) %>% 
+  ggplot(mapping = aes(x = species_id, y = hindfoot_length)) +
+  geom_boxplot(alpha = 0.1) +
+  geom_jitter(alpha = 0.3, mapping = aes(color = plot_factor)) +
+  labs(x = "Species ID", y = "Hindfoot Length", title = "Boxplot", color = "Plot ID") +
+  theme_classic() + 
+  theme(axis.title.x = element_text(angle = 45))
+
