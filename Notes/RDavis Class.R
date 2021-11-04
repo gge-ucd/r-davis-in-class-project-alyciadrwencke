@@ -635,3 +635,89 @@ surveys %>%
   theme_classic() + 
   theme(axis.title.x = element_text(angle = 45))
 
+
+#Data visualization pt 2 211103
+library(tidyverse)
+data("mtcars")
+str(mtcars)
+
+library("ggthemes")
+ggplot(data = mtcars, aes(x = mpg, y = hp)) + geom_point() +
+  theme_tufte()
+#color is a big consideration for your plots
+#use colorblin portion below to make them more accessible
+ggplot(data = mtcars, aes(x = mpg, y = hp, color = as.factor(cyl))) + geom_point() +
+  scale_color_colorblind()
+  
+#continuous value
+ggplot(data = mtcars, aes(x = mpg, y = hp, color = wt)) + geom_point() + theme_bw()
+
+# my graph does not look the same....
+#ah! I still had the as.factor in there. It works when I take it out
+
+ggplot(data = mtcars, aes(x = mpg, y = hp, color = wt)) + geom_point() + theme_bw()
+
+ggplot(data = mtcars, aes(x = mpg, y = hp, color = wt)) + geom_point() + theme_bw() + scale_color_viridis_c() 
+#tyler always uses viridis - makes a difference if you have a lot of data
+ggplot(data = mtcars, aes(x = mpg, y = hp, color = wt)) + geom_point() + theme_bw() + scale_color_viridis_c(option = "B") 
+#option B = the inferno pallet 
+
+install.packages("BrailleR")
+#takes a plot and turns it into a text description
+library("BrailleR")
+
+#plots for publication with cowplot()
+#making random graphs
+summary(diamonds)
+summary(iris)
+summary(mpg)
+
+diamonds.plot <- ggplot(diamonds, aes(clarity, fill = cut)) +
+  geom_bar() + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5))
+
+diamonds.plot
+#did not pop up initially so ran just the item to see if that worked
+#bar plot - if you give just the x variable, it will return the count has the y
+
+mpg.plot <- ggplot(mpg, aes(cty,hwy, color = factor(cyl))) +
+  geom_point(size = 2.5)
+mpg.plot  
+
+iris.plot <- ggplot(iris, aes(Sepal.Length, Petal.Length, color = Species)) + 
+  geom_point(alpha = 0.3)
+iris.plot
+
+install.packages("cowplot")
+library(cowplot)
+
+#use plot_grid to put multiple plots into even lines
+plot_grid(diamonds.plot, mpg.plot, iris.plot, labels = c("A", "B", "C"), nrow = 1)
+#labels for publication to make like figure 1 a, b, c
+#making 1 row
+
+#use ggdraw + ggplot to line up plots
+ggdraw() + draw_plot(iris.plot, x = 0, y = 0, width = 1, height = 0.5) + 
+  draw_plot(mpg.plot, x = 0, y = 0.5, height = 0.5, width = 0.5) +
+  draw_plot(iris.plot, x = 0.5, y = 0.5, height = 0.5, width = 0.5)
+
+#draw plot x and y arguements go from 0 - 1, 0 = bottom left
+#iris will take up the bottom row, mpg will take up top left and diamond will take up top right
+
+
+#ggsave
+#save your plot as an object
+final.plot <- ggdraw() + draw_plot(iris.plot, x = 0, y = 0, width = 1, height = 0.5) + 
+  draw_plot(mpg.plot, x = 0, y = 0.5, height = 0.5, width = 0.5) +
+  draw_plot(iris.plot, x = 0.5, y = 0.5, height = 0.5, width = 0.5)
+
+getwd()
+dir.create("figures")
+ggsave("figures/final.plot.png", plot = final.plot, width = 6, height = 4, units = "in")
+
+#interavtive plots
+install.packages("plotly")
+library(plotly)
+
+ggplotly(iris.plot)
+#can hover over things and pull out specific data points etc. 
