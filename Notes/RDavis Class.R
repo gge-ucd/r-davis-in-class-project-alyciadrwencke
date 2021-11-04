@@ -715,9 +715,10 @@ getwd()
 dir.create("figures")
 ggsave("figures/final.plot.png", plot = final.plot, width = 6, height = 4, units = "in")
 
-#interavtive plots
+#interactive plots
 install.packages("plotly")
 library(plotly)
 
 ggplotly(iris.plot)
 #can hover over things and pull out specific data points etc. 
+#%in% does not do recycling with the vector like concatenate does

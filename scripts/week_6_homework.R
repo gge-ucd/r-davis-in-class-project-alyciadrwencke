@@ -1,4 +1,4 @@
-#week 6 homework 21104
+#week 6 homework 211104
 
 #practicing skills using gapminder
 #download the data using this code
@@ -18,7 +18,7 @@ gapminder %>%
   ggplot()+
   geom_point(aes(x = year, y = mean_lifeExp, color = continent))+ #scatter plot
   geom_line(aes(x = year, y = mean_lifeExp, color = continent)) #line plot
-
+?group_by()
 ## `summarise()` has grouped output by 'continent'. You can override using the `.groups` argument.
 
 
@@ -57,4 +57,10 @@ gapminder %>%
   theme(plot.title = element_text(hjust = 0.5)) +
   xlab("Country") + ylab("Life Expectancy") 
 
-#hchange labels with x/ylab, change title position with hjust
+#%in% is saying if a certain variable pops up in a vecotr, it will return a true value
+#example Zimbabwe in countries - true woula appear where Zimbabwe is
+#in our code - it is returning true for any of the countries in our set
+#change labels with x/ylab, change title position with just
+
+
+
