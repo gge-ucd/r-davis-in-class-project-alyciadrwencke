@@ -29,7 +29,8 @@ new_data = gapminder %>% filter(year %in% c(2002,2007)) %>%
 ggplot(new_data %>% arrange(country)) + facet_wrap(~continent) +
   geom_bar(aes(x = country, y = popDiff),stat = 'identity')
 
-ggplot(data = new_data) + facet_wrap(~continent) +
+#looks better with the scales as free
+ggplot(data = new_data) + facet_wrap(~continent, scales = "free") +
   geom_bar(aes(x = reorder(country,popDiff), y = popDiff),stat = 'identity')
 
 #3 - Also look at how the axes are different for each facet. Try looking through ?facet_wrap to see if you can figure this one out.
@@ -58,3 +59,10 @@ ggplot(data =new_data) + facet_wrap(~continent,scales = 'free') +
 
 
 #7 - Is there a legend on this plot?
+
+final_plot <- ggplot(data =new_data) + facet_wrap(~continent,scales = 'free') +
+  geom_bar(aes(fill = continent, x = reorder(country,popDiff),y = popDiff), stat = 'identity') +
+  labs(x = 'Country',y = 'change in pop. 2002 to 2007') +
+  theme_bw() +
+  theme(axis.text.x = element_text(colour = "gray", angle = 45, hjust = 1), legend.position = "none")
+final_plot
