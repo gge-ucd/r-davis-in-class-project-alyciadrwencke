@@ -722,3 +722,123 @@ library(plotly)
 ggplotly(iris.plot)
 #can hover over things and pull out specific data points etc. 
 #%in% does not do recycling with the vector like concatenate does
+
+
+#Videos for class week 9 - 211116
+#Lubridate - dealing with dates in R
+#R is y m d format for dates
+library(tidyverse)
+sample_dates_1 <- c("2018-02-01", "2018-03-21", "2018-10-05", "2019-01-01", "2019-02-18")
+sort(sample_dates_1)
+
+as.Date(sample_dates_1)
+#nothing happens because they are already in the correct format
+
+sample_dates_1 <- as.Date(sample_dates_1)
+sample_dates_1
+str(sample_dates_1)
+#r now understands it is a date vector rather than a character vector
+
+sample_dates_2 <- c("02-01-2018", "03-21-2018", "10-05-2018", "01-01-2019", "02-18-2019")
+#dates are in month, day, year format - not ideal for r
+sample_dates_3 <-as.Date(sample_dates_2) # well that doesn't work
+str(sample_dates_3)
+#looks terrible - dates are all messed up
+
+#you can read in dates and tell the function how it is currently encoded
+sample_dates_2 <- c("02-01-2018", "03-21-2018", "10-05-2018", "01-01-2019", "02-18-2019")
+sample_dates_3<- as.Date(sample_dates_2, format = "%m-%d-%Y" ) # date code preceded by "%"
+#you can use the ? to figure out how to format
+sample_dates_3 #returns dates again
+
+tm1 <- as.POSIXct("2016-07-24 23:55:26")
+tm1
+tm2 <- as.POSIXct("25072016 08:32:07", format = "%d%m%Y %H:%M:%S")
+tm2
+#Notice how POSIXct automatically uses the timezone your computer is set to. What if we collected this data in a different timezone?
+# specify the time zone:
+tm3 <- as.POSIXct("2010-12-01 11:42:03", tz = "GMT")
+tm3
+
+#easier way to deal with dates
+install.packages('lubridate')
+library(lubridate)
+
+sample_dates_1 <- c("2018-02-01", "2018-03-21", "2018-10-05", "2019-01-01", "2019-02-18")
+sample_dates_lub <- ymd(sample_dates_1)
+lubridate::ymd(sample_dates_1)
+
+sample_dates_2 <- c("2-01-2018", "3-21-2018", "10-05-18", "01-01-2019", "02-18-2019")
+#notice that some numbers for years and months are missing
+
+sample_dates_lub2 <- mdy(sample_dates_2) #lubridate can handle it! 
+
+lubridate::decimal_date(ymd(sample_dates_1))
+#gives you the decimal rep of where things are in a given year
+#good for sorting, proportions, coveriates, etc. 
+
+library(lubridate)
+library(dplyr)
+library(readr)
+
+# read in some data and skip header lines
+nfy1 <- read_csv("data/2015_NFY_solinst.csv", skip = 12)
+head(nfy1) #R tried to guess for you that the first column was a date and the second a time
+# import raw dataset & specify column types
+nfy2 <- read_csv("data/2015_NFY_solinst.csv", col_types = "ccidd", skip=12)
+
+glimpse(nfy1) # notice the data types in the Date.Time and datetime cols
+glimpse(nfy2)
+
+#writing functions
+#functions are operations we run in R
+
+my_sum <- function(a, b) {
+  the_sum <- a + b
+  return(the_sum)
+}
+#the environment now has an object that you can call upon and use
+my_sum(a = 2, b = 2)
+#returns 4
+
+my_sum(3, 4)
+#as long as you write in the same order you don't need to sepcify arguements
+
+#you can set some defaults so you don't have to write them every time
+my_sum2 <- function(a = 1, b = 2) {
+  the_sum <- a + b
+  return(the_sum)
+}
+my_sum2()
+#this returns the correct value because we did not change the default
+#you could overwrite those though, like this
+my_sum2(10)
+
+#Temperature conversion
+#feherenheit to Calvin
+F_to_K <- function(temp) {
+  K <- ((temp - 32) * (5 / 9)) + 273.15
+  return(K)
+}
+# freezing point of water
+F_to_K(32)
+#boiling point of water
+F_to_K(212)
+
+install.packages('gapminder')
+library(gapminder)
+library(tidyverse)
+#average gdp over certain years in Canada
+gapminder %>% 
+  filter(country == "Canada", year %in% c(1950:1970)) %>% 
+  summarize(mean(gdpPercap, na.rm = T))
+#but what if we want to do this for a ton of different countries
+# Note: try to name arguments something that do not exist as a column name, to avoid confusing yourself and R
+avgGDP <- function(cntry, yr.range){
+  df <- gapminder %>% 
+    filter(country == cntry, year %in% yr.range)
+  mean(df$gdpPercap, na.rm = T)
+}
+
+avgGDP("Iran", 1980:1985)
+avgGDP("Zimbabwe", 1950:2000)
