@@ -1144,7 +1144,85 @@ for(i in unique(gapminder$country)[1:10]){
 library(gapminder)
 d <- gapminder::gapminder
 
-for(i in unique(gapminder$country){
-  output[i]= <- 
-} 
 #pick up here in 2 weeks...
+
+#Week 10 prep 211130
+#iterations, for loops, map functions
+#using iris and mtcars data sets
+head(iris)
+head(mtcars)
+#row names are car names in mt cars
+#reminders on subsetting
+iris[1] # first column in table
+iris[[1]] #first column returned as vector
+iris$Sepal.Length #returns the subset
+iris[,1] #left is row, right column
+iris[1,1] 
+iris$Sepal.Length[1] #column of sepal length, and the first row
+
+###For loops
+#for every value of i, it runs an interation
+for(i in 1:10) {
+  print(i)
+} #1:10 is the range
+#returns values 1 through 10
+
+#think about indexing
+for(i in 1:10) {
+  print(iris$Sepal.Length[i])
+} #spits out the first 10 rows of sepal length
+
+#power of the for loop is that you can do many things, including complex functions and merging data
+for(i in 1:10) {
+  print(iris$Sepal.Length[i])
+  print(mtcars$mpg[i])
+}
+#returns every other line as iris and mtcars values
+#row 1,1,2,2, etc.
+#make sure you highlight the entire thing to run the for loop or put your cursor at the end of the curly bracker
+
+#store output
+#want to create an empty vector to fill in
+#rep(value to repeat, and how long do you want to make it)
+#repeating NA's and making it as long as the number of rows of mtcars
+results <- rep(NA, nrow(mtcars))
+results
+
+#want to create an empty vector to fill in
+for (i in 1:nrow(mtcars)) {
+  results[i] <- mtcars$wt[i] * 1000
+}
+results
+#multiplying every row and putting it in the empty vector
+
+###map functions
+#map functions live in the tidy verse
+#load the tidy verse
+#default for map function is to use a function on lots of columns all at once
+#many options for the map function
+
+map(iris, mean)
+#returns the mean of every column in iris
+#map defaults output as a list
+map_df(iris, mean) #following the underscore is the desired output
+#returns a tibble
+
+#can specify the columns you want it to iterate on
+map_df(iris[1:4], mean)
+
+#mapping with 2 arguments with a prewritten function
+mtcars
+print_mpg <- function(x,y){
+  paste(x,"gets",y,"miles per gallon")
+}
+#combining the car name with mpg and some other texts
+#getting more specific with map 2, takes 2 specific arguments and returns character data
+map2_chr(rownames(mtcars), mtcars$mpg, print_mpg)
+#returns pretty sentences about the cars and their gas mileage
+
+#mapping with 2 arguments with an embedded annonymous function
+#the function is not saved in the global environment
+map2_chr(rownames(mtcars),mtcars$mpg, function(x,y) paste(x,"gets",y,"miles per gallon"))
+#returns the same thing as the above
+  
+  
