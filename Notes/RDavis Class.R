@@ -1225,4 +1225,13 @@ map2_chr(rownames(mtcars), mtcars$mpg, print_mpg)
 map2_chr(rownames(mtcars),mtcars$mpg, function(x,y) paste(x,"gets",y,"miles per gallon"))
 #returns the same thing as the above
   
-  
+
+###Week 10 Class 211202###
+library(tidyverse)
+library(lubridate)
+library(gapminder)
+
+
+#psuedo code - write out what you want to do (outline the thing you want to do), then make the code happen
+
+
