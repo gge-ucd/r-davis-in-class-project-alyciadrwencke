@@ -41,9 +41,26 @@ fpw_joined
 
 #1. Plot the departure delay of flights against the precipitation, and include a simple regression line as part of the plot. Hint: there is a geom_ that will plot a simple y ~ x regression line for you, but you might have to use an argument to make sure it’s a regular linear model. Use ggsave to save your ggplot objects into a new folder you create called “plots”.
 
+delay.plot <- ggplot(data = fpw_joined, mapping = aes(x = dep_delay, y = precip)) +
+  geom_point(color = "mediumpurple4") + labs(y = "Precipitation (inches)", x = "Departure Delay (minutes)") +
+  geom_smooth(method='lm', formula= y~x) +
+  theme_bw()
+# saying 11184 rows with missing values removed
+delay.plot
+
+#save to plots
+install.packages("cowplot")
+library(cowplot)
+dir.create("plots")
+ggsave("plots/delay.plot.png", plot = delay.plot, width = 6, height = 4, units = "in")
 
 #2. Create a figure that has date on the x axis and each day’s mean departure delay on the y axis. Plot only months September through December. Somehow distinguish between airline carriers (the method is up to you). Again, save your final product into the “plot” folder.
 
+#filter months so you get only september through december, then soft code mean departure delay, code color by airline carrier, date is on the x axis
+
+
+mean.delay.plot <- ggplot(data = fpw_joined, mapping = aes(x = date, y = precip)) +
+  geom_point(color = "mediumpurple4") + labs(y = "Precipitation (inches)", x = "Departure Delay (minutes)")
 
 #3. Create a dataframe with these columns: date (year, month and day), mean_temp, where each row represents the airport, based on airport code. Save this is a new csv into you data folder called mean_temp_by_origin.csv.
 
