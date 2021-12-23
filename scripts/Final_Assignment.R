@@ -58,31 +58,131 @@ ggsave("plots/delay.plot.png", plot = delay.plot, width = 6, height = 4, units =
 
 #filter months so you get only september through december, then soft code mean departure delay, code color by airline carrier, date is on the x axis
 
+##create a column with day month year date formats
+summary(fpw_joined$day.x)
+##make a day month year column
+alldata <- fpw_joined %>% 
+  filter(!is.na(year.x) & !is.na(month.x) & !is.na(day.x))
+summary(alldata$day.x)
+alldata$dmypaste <- paste(alldata$day.x, alldata$month.x, alldata$year.x, sep = " ")
+class(alldata$dmypaste)
+alldata$dmypaste
+library(lubridate)
+alldata1 <- alldata %>% 
+  mutate(date_dmy = dmy(dmypaste))
+class(alldata1$date_dmy)  
 
-mean.delay.plot <- ggplot(data = fpw_joined, mapping = aes(x = date, y = precip)) +
-  geom_point(color = "mediumpurple4") + labs(y = "Precipitation (inches)", x = "Departure Delay (minutes)")
+alldata1 <- alldata1 %>% 
+  filter(!is.na(dep_delay)) %>% 
+  group_by(date_dmy, carrier) %>% 
+  mutate(meandelay = mean(dep_delay)) %>% 
+  ungroup()
+alldata1
+
+alldata_septhrudec <- alldata1 %>% 
+  filter(month.x >= 9 & month.x <= 12 )
+
+ggplot(data = alldata_septhrudec, mapping = aes(x = date_dmy, y = meandelay)) +
+  geom_point(aes(color = carrier))
+
+ggsave(filename = "mean_delay_by_carrier_sep_dec.pdf", path = "plots")
+
 
 #3. Create a dataframe with these columns: date (year, month and day), mean_temp, where each row represents the airport, based on airport code. Save this is a new csv into you data folder called mean_temp_by_origin.csv.
 
+alldata_complete_date_temp_airport <- alldata %>% 
+  filter(!is.na(temp) & !is.na(origin.x))
+alldata_complete_date_temp_airport$ymdpaste <- paste(alldata_complete_date_temp_airport$year.x, alldata_complete_date_temp_airport$month.x, alldata_complete_date_temp_airport$day.x, sep = " ")
+
+alldata2 <- alldata_complete_date_temp_airport %>% 
+  mutate(date_ymd = ymd(ymdpaste))
+class(alldata2$date_ymd)  
+alldata2 <- alldata2 %>% 
+  group_by(date_ymd, origin.x) %>% 
+  mutate(mean_temp = mean(temp)) %>% 
+  ungroup()
+View(alldata2)  
+
+##select just relevant columns
+ymd_origin_mean_temp <- alldata2 %>% 
+  group_by(origin.x, date_ymd) %>% 
+  summarise(mean_temp = mean(temp))
+ymd_origin_mean_temp
+wide_origin_meantemp <- pivot_wider(ymd_origin_mean_temp, names_from = date_ymd, values_from = mean_temp)
+write_csv(wide_origin_meantemp, file = "data/wide_origin_meantemp.csv")
 
 #4. Make a function that can: (1) convert hours to minutes; and (2) convert minutes to hours (i.e., it’s going to require some sort of conditional setting in the function that determines which direction the conversion is going). Use this function to convert departure delay (currently in minutes) to hours and then generate a boxplot of departure delay times by carrier. Save this function into a script called “customFunctions.R” in your scripts/code folder.
 
-#convert minutes to hours or hours to minutes
-time_convert <- function(delay) {
- if (x = hour) {x*60} else {x/60}
+x <- c(1,2)
+v <- vector(length = length(x))
+v
+vector_making_fxn <- function(x){
+  v <- rep(NA, length(x))
+  print(v)
 }
- 
-#build in a call in the function to tell it if you are dealing with a minute or an hour
 
-#if in hours, convert to minutes, if in hours, convert to minutes
-#tell it what the number and what the form is (min or hour) and what to do with it based on that
-#needs to have multiple inputs
+v8 <- c(2,4,6,8)
+vector_making_fxn(v8)
+m_h_conv <- function(x, start_with_minute = TRUE) {
+  v <- rep(NA, length(x))
+  if(start_with_minute == TRUE) {
+    v <- x/60}
+  else {
+    v <- x*60
+  }
+  v}
 
-K_to_C <- function(tempK) {
-  C <- ((tempK - 273.15))
-  return(C)
-}
+m_h_conv(weight_g, FALSE)
+
+
+save(m_h_conv, file = "scripts/customfunctions.R")
+
+##boxplot of departure delays by carrier, in hours
+
+data_hours <- alldata %>% 
+  filter(!is.na(dep_delay) & !is.na(carrier)) %>% 
+  mutate(hr_delay = m_h_conv(dep_delay)) %>% 
+  group_by(carrier) %>% 
+  mutate(mean_delay = mean(hr_delay)) %>% 
+  mutate(med_delay = median(hr_delay))
+summary(data_hours$med_delay)
+
+data_hours
 
 #5. Below is the plot we generated from the new data in Q4. (Base code: ggplot(df, aes(x = dep_delay_hrs, y = carrier, fill = carrier)) +   geom_boxplot()). The goal is to visualize delays by carrier. Do (at least) 5 things to improve this plot by changing, adding, or subtracting to this plot. The sky’s the limit here, remember we often reduce data to more succinctly communicate things.
+##starting with:
+
+ggplot(data_hours, mapping = aes(x = hr_delay, y = carrier, fill = carrier)) +
+  geom_boxplot()
+##change scale of y axis--this includes all but 33 outliers and gives a much better sense of differences in data distribution between carriers
+
+ggplot(data_hours, mapping = aes(x = carrier, y = hr_delay, fill = carrier)) +
+  geom_boxplot() +
+  ylim(-0.5, 6)
+##reorder by median delay of each carrier
+ggplot(data_hours, mapping = aes(x = reorder(carrier, med_delay), y = hr_delay, fill = carrier)) +
+  geom_boxplot() +
+  ylim(-0.5, 6)
+##remove lines
+ggplot(data_hours, mapping = aes(x = reorder(carrier, med_delay), y = hr_delay, fill = carrier)) +
+  geom_boxplot() +
+  ylim(-0.5, 4) +
+  theme_classic()
+
+##adjust transparency
+ggplot(data_hours, mapping = aes(x = reorder(carrier, med_delay), y = hr_delay, fill = carrier)) +
+  geom_boxplot(alpha = 0.25) +
+  ylim(-0.5, 4) +
+  theme_classic()
+
+##change axis labels
+ggplot(data_hours, mapping = aes(x = reorder(carrier, med_delay), y = hr_delay, fill = carrier)) +
+  geom_boxplot(alpha = 0.25) +
+  ylim(-0.5, 4) +
+  theme_classic()+
+  labs( x = "Carrier",
+        y = "Delay (hours)",
+        title = "Delay by Carrier",
+        color = "Carrier")
 
 
